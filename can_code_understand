@@ -1,0 +1,144 @@
+// CodeFlow of CAN polling and Tx and Rx Data into CAN BUS
+
+------------------------------------ CAN_POLL    ------------------------------------------
+
+// Polling  happended Every 10ms to process and transmit the frame into CAN Bus.  
+1) ProcessFrames() -> //  Process Frame register the frame and onreciption Handler will be called. 
+Get message from secondary CAN queue ECU_DEQUEUE()->  ProcessFrame() -> reg = CAN_GetRegistration(frame->arb.packed, reg)) -> OnReceiptOfDutyCycleControl_65535()
+
+2) CAN_Transmit()  // Explained Below of Rxpipe and writeTxData
+
+------------------------------------  CAN_Send ------------------------------------------
+// Write DATA to CAN BUS 
+CAN_send.c
+CAN_Send() -> CAN_Transmit()
+
+CAN_Trasmitt.c 
+CAN_Transmit() -> SlotTransmit -> if(Read_CAN_MB_Status && GetFrame) - Write_CAN_MB_Ident() & Write_CAN_MB_Data() .. Request_CAN_MB_Transmission() 
+
+---------------->// Request_CAN_MB_Transmission() //-----------------------
+
+APPwrapper_com.c
+Request_CAN_MB_Transmission -> SimCB_Request_CAN_MB_Transmission -> 
+
+CANManager.cs
+Request_CAN_MB_Transmission ->  Driver.RequestTx(MB_ID_u16); 
+
+
+IntraSimCAN.cs ->  
+RequestTx -> SimRxPipes(TxMsg) -> Rxpipe() 
+
+StabilizerWheel_Model.cs
+RxPipe() -> Send_DutyCycleValue() -> Tx.PS = 0xC2; //DUTYCYCLE_CONTROL_PS //receiving DutycycleVoltagesensor date into Tx.Data[4-7] and then updating same to solenoid 
+
+-----------------> //Write_CAN_MB_Data() // ---------------------------------
+APPwrapper_com.c
+Write_CAN_MB_Data()->   Driver.WriteTxData()
+
+CANManager.cs
+ Driver.WriteTxData() ->  WriteTxData()
+ 
+IntraSimCAN.cs ->
+ WriteTxData() 
+ 
+
+
+
+
+
+##########################################  code understand  ##############################################
+Understanding & Investigating of planter codeflow for Stabilizer wheel project purpose:
+
+CAN Based abbrevations: 
+KWP - Keyword Protocol  Ref : https://www.embitel.com/blog/embedded-blog/kwp-2000-and-uds-protocols-for-vehicle-diagnostics-an-analysis-and-comparison
+UDS - Unified Diagnostic Services
+ECU - Electronic Control Units 
+
+Frame_Solenoids
+NVM
+EEPROM_system_type
+
+
+SCHEDULER_PERIOD_MS = 10;    
+simMainView.xaml.cs  -> poweron();--->power button in simulater
+Taskmanager.cs -> Scheduler() -> Sim_Application_Init_Hook() -> Application_Init_Hook()
+								 task.AppTaskFunction() -> BackgroundLoop10ms()
+UniversalControlModuleECU\WindowsSim\Extern\UCMSimFramework\AppDLLWrapper\AppWrapper_Core.c --> 
+AppWrapper_Core.c> Application_Init_Hook  -> 
+			InitComponents	->  ECU_Init , TIMER_init ,AnalogIO , DigitalIO, NVM, PWM , 
+								CAN_SetBaudRate for primary,sec,tertiary, CAN_Init , ISOBUS_Init, 
+								signal monitoring: Signal_Init, 
+								protocols for CAN frames: KWP , TP
+								signal processing : Signal_Start
+			InitApplication -> PlanterApplicationInit ()
+   can_init();    -->   CAN_init.c --> CAN_55xx_init.c 
+								CONFIG_CAN_NUM_BUSES = 3 .. 	InitCAN() { InitprimaryCAN() .. }   CAN_SetBaudRate() { } 
+								BackgroundLoop10ms -> CAN_Poll -> ReceiveFrames() .. ProcessFrame() ..  CAN_Transmit()
+								ProcessFrames() --> ECU_DEQUEUE() -> ProcessFrame() -> QueueFrame()->
+								CAN_Send() -->  CAN_Transmitt [TransmitCAN()] -> 
+   seccan_init();
+   
+   can_callback_registration();    
+   seccan_callback_registration();
+   ThirdCan_callback_registration();
+				 -->    CAN_Register() [ECU_POOL_LOCK() .. ECU_POOL_ALLOC() - [ECU_PoolAlloc() in ECU_pool.c] .. ECU_POOL_UNLOCK()]
+   
+   fuzzy_init();
+   
+   frame_init(); -->    ConfigureFramePositionSensor()  & ConfigureFrameSolenoidOutputs .. Calibratioin values from NVM
+   in_init();    -->    miu_in_init() -> ConfigureDigitalInputSensors() .. EEPROM_system_type
+   PlanterParametersInit();
+   FrameConfigurationInit();     
+   Frame_SolenoidControlInit();
+   out_init();
+   
+   fault_init();                 // Initialize the Fault Manager
+   FatalErrorInit();             // Initialize the Fatal Error Handler
+   test_init();
+   fault_detection_init();
+   pp_init();                    // Initialize the PP seed planting and counting system
+   CheckCleanerForLiftPressure(); // Check for lift pressure on the Cleaner at initial startup
+
+BackgroundLoop10ms() -> 
+    BackgroundLoopTask() -> 
+							can_manager() 
+							in_manager()
+							fuzzy_manager()
+							frame_manager()
+							out_manager()
+							fault_manager()
+							fault_detection_manager()
+							Frame_SolenoidManager()
+							Steering_Manager()
+							pp_manager()
+							
+    ECU_KickWatchdog() // prevent watchdog from timing out   
+	NVM_Poll() -> 
+	CAN_Poll()
+	Signal_Poll() -> MonitorSignalStates() 
+    KWP_Poll()
+    TP_Poll()
+    BgPoll()
+	frame_manager() -> DetermineFramePosition() -> frame_direction & frame_SetInstalledSolenoids()
+				
+   
+
+   
+   
+   //==========================================================================================================================================================
+
+interaction c# code to c code :
+	the respective c code was generate .dll file.
+	Now the .dll file is link to C# code .
+	the .dll file only the c definations and declerations.
+	
+	now use below methodic style to link c# code to c code.
+
+	 [DllImport("kernel32.dll")]--------->
+
+
+ 	and c# code was atached to c code we need 
+	
+	__declspec(dllexport)---------------->
+   
+   
