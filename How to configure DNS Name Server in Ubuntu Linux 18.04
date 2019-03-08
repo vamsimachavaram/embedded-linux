@@ -1,0 +1,89 @@
+$$$$$$$$$$$$$$$$$$$  How to configure DNS Name Server in Ubuntu Linux 18.04  $$$$$$$$$$$$$$$$$$$$$
+
+
+1.hostnamectl    -->get the static hostname,iconname,chassis,machin id,boot id,os,kernal & etc....
+2.hostnamectl set-hostname server.example.com--->enter
+3.ifconfig
+
+4.config static ip address:
+	sudo nano /etc/network/interfaces-->enter
+		check with this file -->auto ens3 
+					iface ens3 inet static
+ 					addrss-
+5.sudo systemctl restart networking--->face any issu reboot the system.
+6.sudo apt-get update
+7.sudo apt-get install bind9 bind9utils
+8.cd /etc/bind
+9.ls
+10.cat /etc/bind/name.conf
+11.sudo nano /etc/bind/name.conf.local--->add-> zone "example.com" IN{
+									type master;
+									file "/etc/bind/forward.example.com"
+						};
+						zone "1.25.172.in-addr.arpa" IN{
+						type master;
+						file file "/etc/bind/reverse.example.com";
+						};->save and exit from this file.
+12./etc/bind$ sudo cpdb.local forward.example.com
+13.sudo nano /etc/bind/forward.example.com
+13.change local host as sewrver.example.com. root.server.example.com.
+	@      IN NS server.example.com.
+	@      IN PTR 172.25.1.11          
+	server IN A 172.25.1.11
+	host   IN A 172.25.1.11
+	client IN PTR 172.25.1.12
+	www    IN PTR 172.25.1.12
+
+	
+14.sudo cp forward.example.com reverse.example.com
+15.	@      IN NS server.example.com.
+	@      IN PTR 172.25.1.11          
+	server IN A 172.25.1.11
+	host   IN A 172.25.1.11
+	client IN PTR 172.25.1.12
+	www    IN PTR 172.25.1.12
+	11 IN PTR server.example.com.	
+	12 IN PTR client.example.com.
+16.sudo named-checkconf -z /etc/bind/named.conf
+17.sudo named-checkconf -z /etc/bind/named.conf.local
+18.sudo named-checkzon  /etc/bind/forward.example.com
+19.sudo named-checkzon  /etc/bind/reverse.example.com
+20.sudo systemctl start bind9
+21.sudo chown -R bind:bind /etc/bind 
+22.sudo chmod -R 755 /etc/bind 
+23.sudo systemctl start bind9
+24.sudo systemctl status bind9
+25.sudo systemctl enable bind9
+26.sudo ufw status --->inactive firwall status
+27.sudo ufw allow bind9--->active
+28.sudo nano /etc/network/interfaces  ->end of the file give the some text shown in below.
+					->dns-search example.com
+					->dns-nameserver 172.25.1.11 ->save & quit from this fuile
+29.systemctl restart networking -->restart network
+30.sudo nano /etc/resolv.conf
+	--->enter text->namesever 172.25.1.11
+		      ->search example.com---->save &quit
+31.systemctl restart networking -->restart network
+
+32.systemctl restart NetworkManager
+33.ping server
+34.ping host---->network is working or not based on this command
+35.nslookup server--->output is server ,address,name,address.
+36.nslookup host--->output is server ,address,name,address.
+37.nslookup client--->output is server ,address,name,address.
+
+
+$$$$$$$$$$$$$$$$$$$$$$  client side $$$$$$$$$$$$$$$$$$$$$$$$$$$$
+1.ip a--->here also ens3 hear change it
+2.hostname
+3.sudo nano /etc/network/interfaces--->make sure clent & server were in n/W
+4.ping 172.25.1.11
+5.sudo nano /etc/resolv.conf---->nameserver 172.25.1.11
+			    serach example.com -->S&Q
+6.sudo systemctl restart networking
+7.systemctl restart NetworkManager
+8.ping server
+9.ping client
+10.ping www
+11.ping www2
+12.35.nslookup server--->output is server ,address,name,address.
