@@ -1,0 +1,18 @@
+link is : https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841974/Linux+I2C+Driver
+
+root/arch/arm64/configs/defconfig ------->this is the path to config i2c / any configuration
+                                  CONFIG_I2C_XILINX=y
+tells the hardware info to the kernal
+
+IIC: i2c@81600000 {
+    compatible = "xlnx,xps-iic-2.00.a";
+    interrupt-parent = <&xps_intc_0>;
+    interrupts = < 6 2 >;
+    #address-cells = <1>;
+    #size-cells = <0>;
+  
+    m24c08@50 {
+        compatible = "at,24c08";
+        reg = <0x50>;
+    };
+} ;
