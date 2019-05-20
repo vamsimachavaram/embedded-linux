@@ -1,1 +1,31 @@
+The heart of a modern computer is one or more Central Processing Units.
 
+A CPU gets its instructions from memory.
+The CPU reads instruction from the BIOS and searches for the hard disks, CD drives and other hardware.
+The BIOS program looks at the first sector for boot code.
+Devices that feed the initial CPU instructions are known as bootstrap media.
+
+The Booting is a process involving 2 stages:
+  getting hardware up and running, and
+  getting the OS and other software up and running
+  
+Power up; computer runs POST----->POST mean 
+
+power-on self-test -- one of the first processes that a computer undergoes when booting
+POST tests the computer to ensure that it is working as it is supposed to.
+POST can detect some errors with the processor, motherboard, RAM and other memory, as well as the video card.
+Most BIOS chips use a system of beep codes to indicate the POST status to the user and each BIOS chipset uses a different code.
+
+
+Boot sequence governed by BIOS ROM
+BIOS parameters stored in CMOS
+BIOS ROM may be password protected
+Control passes to the MBR of the first bootable device detected
+MBR points to boot record of selected operating system
+Operating system takes control
+
+6. Plug and play BIOS
+create an ISR for detect HArdware card .
+The boot code in a DOS disk exists in the first 446 bytes of the first 512 byte sector, which is the MBR.
+The end of the sector contains the partition table.
+Boot sector viruses insert themselves into the first 446 bytes of the MBR so that they are executed every time the computer is booted.
