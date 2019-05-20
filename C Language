@@ -1,1 +1,110 @@
+strtoul() function in C/C++
+The strtoul() function in C/C++ which converts the initial part of the string in str to an unsigned long int value according to the given base, which must be between 2 and 36 inclusive, or be the special value 0. This function discard any white space characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid base-n unsigned integer number representation and converts them to an integer value.
 
+Syntax:
+
+unsigned long int strtoul(const char *str, char **end, int base)
+Parameter: The function accepts three mandatory parameters which are described below:
+
+str: Pointer to the null-terminated byte string to be interpreted
+end : Pointer to a pointer to character (Reference to an object of type char*)
+base : Base of the interpreted integer value
+Return value: The function returns two value as below:
+
+On success, it returns an integer value corresponding to the contents of str.
+If no valid conversion is done, then 0 is returned.
+Below programs illustrate the above function:
+
+
+
+ 
+
+Program 1:
+
+filter_none
+edit
+play_arrow
+
+brightness_4
+// C++ program to illustrate the 
+// strtoul() function 
+#include <bits/stdc++.h> 
+using namespace std; 
+  
+int main() 
+{ 
+  
+    // initiaizing the string 
+    char str[256] = "90600 Geeks For Geeks"; 
+  
+    // reference pointer 
+    char* end; 
+    long result; 
+  
+    // finding the unsigned long  
+    // integer with base 36 
+    result = strtoul(str, &end, 36); 
+  
+    // printing the unsigned number 
+    cout << "The unsigned long integer is : "
+         << result << endl; 
+    cout << "String in str is : " << end; 
+  
+    return 0; 
+} 
+Output:
+The unsigned long integer is : 15124320
+String in str is :  Geeks For Geeks
+Program 2:
+
+filter_none
+edit
+play_arrow
+
+brightness_4
+// C++ program to illustrate the 
+// strtoul() function with  
+// different bases 
+#include <bits/stdc++.h> 
+using namespace std; 
+  
+int main() 
+{ 
+  
+    // initiaizing the string 
+    char str[256] = "12345 GFG"; 
+  
+    // reference pointer 
+    char* end; 
+    long result; 
+  
+    // finding the unsigned long interger 
+    // with base 36 
+    result = strtoul(str, &end, 0); 
+    cout << "The unsigned long integer is : "
+         << result << endl; 
+    cout << "String in str is : " << end << endl; 
+  
+    // finding the unsigned long interger 
+    // with base 12 
+    result = strtoul(str, &end, 12); 
+    cout << "The unsigned long integer is : "
+         << result << endl; 
+    cout << "String in str is : " << end << endl; 
+  
+    // finding the unsigned long interger 
+    // with base 30 
+    result = strtoul(str, &end, 30); 
+    cout << "The unsigned long integer is : " 
+         << result << endl; 
+    cout << "String in str is : " << end << endl; 
+  
+    return 0; 
+} 
+Output:
+The unsigned long integer is : 12345
+String in str is :  GFG
+The unsigned long integer is : 24677
+String in str is :  GFG
+The unsigned long integer is : 866825
+String in str is :  GFG
