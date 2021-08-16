@@ -77,6 +77,7 @@ void print_info(SLL *ptr)
 void Delete_node(SLL **ptr,int number)
 {
   SLL *temp=*ptr;
+  SLL *temp1;
   while (temp) {
     if((*ptr)->id==number)
     {
@@ -108,4 +109,17 @@ void delete_all_nodes(SLL **ptr)
     temp=*ptr->next;
   }
 }
-//Reverse of a list $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+//Recursive Reverse of a list $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+void recursive_reverse(SLL *ptr)
+{
+  char *p=ptr;
+  if(p->next == NULL)
+  {
+    head = p;
+    return ;
+  }
+  recursive_reverse(p->next);
+  SLL *q = p->next;
+  q->next = p;
+  p->next = NULL;    
+}
